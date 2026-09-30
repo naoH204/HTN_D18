@@ -1,0 +1,41 @@
+# ==========================================
+# 1. Các file rác / file biên dịch của KEIL C (MDK-ARM)
+# ==========================================
+*.bak
+*.dep
+*.d
+*.crf
+*.o
+*.htm
+*.lnp
+*.sct
+*.map
+*.lst
+*.axf
+*.build_log.htm
+*.htm
+*.icf
+*.__i
+
+# Thư mục chứa file build đầu ra của Keil
+MDK-ARM/*.uvgui.*
+MDK-ARM/RTE/
+MDK-ARM/Listings/
+MDK-ARM/Objects/
+MDK-ARM/DebugConfig/
+
+# ==========================================
+# 2. Các file rác hệ thống & IDE khác (VS Code, Windows, macOS)
+# ==========================================
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.tmp
+
+# ==========================================
+# 3. NHỮNG FILE BẮT BUỘC GIỮ LẠI (GIỮ CẤU HÌNH KEIL & CUBEMX)
+# ==========================================
+!*.ioc
+!*.uvprojx
+!*.uvoptx

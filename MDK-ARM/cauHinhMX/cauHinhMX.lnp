@@ -1,0 +1,25 @@
+--cpu Cortex-M3
+"cauhinhmx\startup_stm32f103xb.o"
+"cauhinhmx\main.o"
+"cauhinhmx\stm32f1xx_it.o"
+"cauhinhmx\stm32f1xx_hal_msp.o"
+"cauhinhmx\stm32f1xx_hal_gpio_ex.o"
+"cauhinhmx\stm32f1xx_hal_adc.o"
+"cauhinhmx\stm32f1xx_hal_adc_ex.o"
+"cauhinhmx\stm32f1xx_hal.o"
+"cauhinhmx\stm32f1xx_hal_rcc.o"
+"cauhinhmx\stm32f1xx_hal_rcc_ex.o"
+"cauhinhmx\stm32f1xx_hal_gpio.o"
+"cauhinhmx\stm32f1xx_hal_dma.o"
+"cauhinhmx\stm32f1xx_hal_cortex.o"
+"cauhinhmx\stm32f1xx_hal_pwr.o"
+"cauhinhmx\stm32f1xx_hal_flash.o"
+"cauhinhmx\stm32f1xx_hal_flash_ex.o"
+"cauhinhmx\stm32f1xx_hal_exti.o"
+"cauhinhmx\stm32f1xx_hal_tim.o"
+"cauhinhmx\stm32f1xx_hal_tim_ex.o"
+"cauhinhmx\system_stm32f1xx.o"
+--strict --scatter "cauHinhMX\cauHinhMX.sct"
+--summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
+--info sizes --info totals --info unused --info veneers
+--list "cauHinhMX.map" -o cauHinhMX\cauHinhMX.axf
