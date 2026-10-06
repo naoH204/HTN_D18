@@ -6,7 +6,7 @@
 
 //============================ define  =============================================
 /**
-*@brief cau hinh not nhac va cac che do phat
+*@brief cau hinh not nhac va cac che do
 *
 */
 #define C4   262

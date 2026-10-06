@@ -59,6 +59,38 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define LCD_RS_Pin GPIO_PIN_1
+#define LCD_RS_GPIO_Port GPIOA
+#define LCD_EN_Pin GPIO_PIN_2
+#define LCD_EN_GPIO_Port GPIOA
+#define LCD_D4_Pin GPIO_PIN_3
+#define LCD_D4_GPIO_Port GPIOA
+#define LCD_D5_Pin GPIO_PIN_4
+#define LCD_D5_GPIO_Port GPIOA
+#define LCD_D6_Pin GPIO_PIN_5
+#define LCD_D6_GPIO_Port GPIOA
+#define LCD_D7_Pin GPIO_PIN_6
+#define LCD_D7_GPIO_Port GPIOA
+#define nut_nhan_Pin GPIO_PIN_0
+#define nut_nhan_GPIO_Port GPIOB
+#define nut_nhanB1_Pin GPIO_PIN_1
+#define nut_nhanB1_GPIO_Port GPIOB
+#define nut_menu_Pin GPIO_PIN_10
+#define nut_menu_GPIO_Port GPIOB
+#define nut_menuB11_Pin GPIO_PIN_11
+#define nut_menuB11_GPIO_Port GPIOB
+#define nut_nhanB12_Pin GPIO_PIN_12
+#define nut_nhanB12_GPIO_Port GPIOB
+#define nut_nhanB3_Pin GPIO_PIN_3
+#define nut_nhanB3_GPIO_Port GPIOB
+#define nut_nhanB4_Pin GPIO_PIN_4
+#define nut_nhanB4_GPIO_Port GPIOB
+#define nut_nhanB5_Pin GPIO_PIN_5
+#define nut_nhanB5_GPIO_Port GPIOB
+#define nut_nhanB6_Pin GPIO_PIN_6
+#define nut_nhanB6_GPIO_Port GPIOB
+#define nut_nhanB7_Pin GPIO_PIN_7
+#define nut_nhanB7_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 
