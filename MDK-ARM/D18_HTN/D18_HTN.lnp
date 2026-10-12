@@ -1,0 +1,27 @@
+--cpu Cortex-M3
+"d18_htn\startup_stm32f103xb.o"
+"d18_htn\main.o"
+"d18_htn\stm32f1xx_it.o"
+"d18_htn\stm32f1xx_hal_msp.o"
+"d18_htn\stm32f1xx_hal_gpio_ex.o"
+"d18_htn\stm32f1xx_hal_adc.o"
+"d18_htn\stm32f1xx_hal_adc_ex.o"
+"d18_htn\stm32f1xx_hal.o"
+"d18_htn\stm32f1xx_hal_rcc.o"
+"d18_htn\stm32f1xx_hal_rcc_ex.o"
+"d18_htn\stm32f1xx_hal_gpio.o"
+"d18_htn\stm32f1xx_hal_dma.o"
+"d18_htn\stm32f1xx_hal_cortex.o"
+"d18_htn\stm32f1xx_hal_pwr.o"
+"d18_htn\stm32f1xx_hal_flash.o"
+"d18_htn\stm32f1xx_hal_flash_ex.o"
+"d18_htn\stm32f1xx_hal_exti.o"
+"d18_htn\stm32f1xx_hal_i2c.o"
+"d18_htn\stm32f1xx_hal_tim.o"
+"d18_htn\stm32f1xx_hal_tim_ex.o"
+"d18_htn\stm32f1xx_hal_uart.o"
+"d18_htn\system_stm32f1xx.o"
+--strict --scatter "D18_HTN\D18_HTN.sct"
+--summary_stderr --info summarysizes --map --xref --callgraph --symbols
+--info sizes --info totals --info unused --info veneers
+--list "D18_HTN.map" -o D18_HTN\D18_HTN.axf
