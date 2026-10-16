@@ -3,7 +3,11 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "Speaker.h"
-/* Private includes ----------------------------------------------------------*/
+#include "lcd-i2c.h"
+#include "keypad.h"
+#include <stdio.h>
+/* USER CODE END Includ
+ Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 /* USER CODE END Includes */
 
@@ -30,7 +34,6 @@ TIM_HandleTypeDef htim3;
 UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN PV */
-static SongSelect_t current_selected_song = SONG_STOPPED;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -58,6 +61,16 @@ void Audio_PlayTone(uint16_t freq) {
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+void Buzzer_PlayNote(uint16_t freq) {
+    if (freq == 0) {
+        __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, 0); // Tắt băm xung
+    } else {
+        // Tính toán giá trị thanh ghi ARR dựa trên tần số muốn phát
+        __HAL_TIM_SET_AUTORELOAD(&htim1, 1000000 / freq - 1);
+        // Set Duty cycle 50% để loa kêu to và đều nhất
+        __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, (1000000 / freq) / 2); 
+    }
+}
 /* USER CODE END 0 */
 
 /**
@@ -93,46 +106,111 @@ int main(void)
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
-
-  Speaker_Init(&hadc1);
-
-
+  
+ 
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  /* USER CODE BEGIN WHILE */
-  uint32_t last_button_tick = 0;
-
   while (1)
   {
-    /* USER CODE BEGIN USER_CODE */
+    UI_Process_Buttons();   // Quét nút bấm đổi bài và Play/Stop
+    Speaker_Process_FSM();   // Xử lý phát nhạc
+    /* USER CODE END WHILE */
+static uint32_t last_lcd_update = 0;
+    static uint8_t system_mode = 0;      // 0 (Free), 1 (Record)
+    static uint8_t action_state = 0;     // 0: Chờ, 1: Đang ghi, 2: Đang phát lại
+    
+    // Khai báo biến lưu trạng thái cũ để bắt sự kiện "bấm xuống 1 lần"
+    static uint8_t last_pa5 = 1;         // Mặc định Pull-up là 1
+    static uint8_t last_pa6 = 1;         // Mặc định Pull-up là 1
+    
+    char lcd_row1[32] = "                ";
+    char lcd_row2[32] = "                ";
 
-    if (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_10) == GPIO_PIN_RESET) {
-        if (HAL_GetTick() - last_button_tick > 200) {
-            last_button_tick = HAL_GetTick();
+    // --- 1. LẤY MÃ PHÍM ĐÀN TỪ MODULE SV2 (Vẫn dùng hàm của SV2) ---
+    uint8_t key = Keypad_GetConfirmedKey();
 
-            current_selected_song = (SongSelect_t)((current_selected_song + 1) % 4);
-            
-            Speaker_SelectSong(current_selected_song);
-
+    // --- 2. ĐỌC TRỰC TIẾP 2 NÚT ĐIỀU KHIỂN PA5 (Select), PA6 (OK) ---
+    // Vì đang cấu hình Pull-up nên nhả = 1, bấm = 0
+    uint8_t current_pa5 = HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_5);
+    uint8_t current_pa6 = HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_6);
+    
+    // Logic: Nếu lần trước nhả (1), lần này bấm (0) => Bắt đúng xung cạnh xuống
+    if (last_pa5 == 1 && current_pa5 == 0) { 
+        // Bấm PA5 (Select) -> Đổi qua lại giữa Mode 0 và Mode 1
+        system_mode++;
+        if (system_mode > 1) system_mode = 0; 
+        
+        action_state = 0;   // Reset trạng thái thực thi
+        Buzzer_PlayNote(0); // Tắt loa ngay lập tức khi đổi Mode
+    }
+    
+    if (last_pa6 == 1 && current_pa6 == 0) { 
+        // Bấm PA6 (OK) -> Chuyển trạng thái Ghi/Phát ở Mode 1
+        if (system_mode == 1) {
+            action_state++;
+            if (action_state > 2) action_state = 0;
         }
     }
+    
+    // Cập nhật lại biến last để dùng cho vòng lặp sau
+    last_pa5 = current_pa5;
+    last_pa6 = current_pa6;
 
-    // --- CH?Y FSM PH�T NH?C T? �?NG TRONG N?N (Non-blocking) ---
-    // H�m n�y s? t? d?ng d?c gi� tr? bi?n tr? ? PA4 (`ADC1_IN4`) d? thay d?i t?c d? 
-    // v� xu?t t?n s? n?t qua h�m `SV1_Audio_PlayTone` ra ch�n `PA8`.
-    Speaker_Process_FSM();
+    // --- 3. HIỂN THỊ GIAO DIỆN & PHÁT NHẠC (Sử dụng switch-case) ---
+    switch (system_mode) {
+        case 0: // CHẾ ĐỘ 0: ĐÁNH TỰ DO (Code nốt nhạc cũ của m ở đây)
+            sprintf(lcd_row1, "Mode: FREE PLAY ");
+            
+            if (key != 0) {
+                sprintf(lcd_row2, "Key Pressed: %02X", key); 
+                // Phát nhạc tương ứng với phím
+                if (key == 0x01) Buzzer_PlayNote(524);       // C5
+                else if (key == 0x02) Buzzer_PlayNote(587);  // D5
+                else if (key == 0x04) Buzzer_PlayNote(661);  // E5
+                else if (key == 0x08) Buzzer_PlayNote(700);  // F5
+                else if (key == 0x10) Buzzer_PlayNote(784);  // G5
+                else if (key == 0x20) Buzzer_PlayNote(880);  // A5
+                else if (key == 0x40) Buzzer_PlayNote(988);  // B5
+                else if (key == 0x80) Buzzer_PlayNote(1047); // C6
+            } else {
+                sprintf(lcd_row2, "Ready...        ");
+                Buzzer_PlayNote(0); // Thả tay ra thì tắt loa
+            }
+            break;
 
-    /* USER CODE END WHILE */
+        case 1: // CHẾ ĐỘ 1: GHI ÂM & PHÁT LẠI (Dành cho SV4)
+            sprintf(lcd_row1, "Mode: REC/PLAY  ");
+            
+            if (action_state == 0) {
+                sprintf(lcd_row2, "Press OK to REC ");
+                Buzzer_PlayNote(0); // Ngừng loa chờ ấn OK
+            } 
+            else if (action_state == 1) {
+                sprintf(lcd_row2, "Status: RECORDING");
+                // SV4 sẽ nhét code lưu mảng nốt nhạc vào đây
+            } 
+            else if (action_state == 2) {
+                sprintf(lcd_row2, "Status: PLAYBACK ");
+                // SV4 sẽ nhét code đọc mảng phát loa vào đây
+            }
+            break;
+    }
 
-
-
-}   
-
+    // --- 4. CẬP NHẬT MÀN HÌNH (Mỗi 200ms) ---
+    if (HAL_GetTick() - last_lcd_update >= 200) {
+        last_lcd_update = HAL_GetTick();
+        
+        LCD_Set_Cursor(0, 0);
+        LCD_Send_String(lcd_row1);
+        LCD_Set_Cursor(1, 0);
+        LCD_Send_String(lcd_row2);
+    }
+	}
     /* USER CODE BEGIN 3 */
+  }
   /* USER CODE END 3 */
-}
 
 /**
   * @brief System Clock Configuration
@@ -415,11 +493,18 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
+
+
+  /*Configure GPIO pins : PA5 PA6 */
+  GPIO_InitStruct.Pin = GPIO_PIN_5|GPIO_PIN_6; // 5 chon, 6 ok
+
   /*Configure GPIO pins : PA5 PA6 */
   GPIO_InitStruct.Pin = GPIO_PIN_5|GPIO_PIN_6;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+
 
   /*Configure GPIO pins : PB10 PB11 PB12 PB13
                            PB14 PB15 PB8 PB9 */
