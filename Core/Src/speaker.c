@@ -1,18 +1,18 @@
 #include "speaker.h"
-#include "i2c-lcd.h"
+#include "lcd-i2c.h"
 #include <stddef.h>
 #include <stdio.h>
 
 static ADC_HandleTypeDef *p_hadc;
 
-// ================= Du lieu 3 bai hat =================
+// ================= Dữ liệu 3 bài hát =================
 static const SongNote_t song1_data[] = {
     {E4, 2}, {E4, 2}, {E4, 4},  // Jin-gle bells,
     {E4, 2}, {E4, 2}, {E4, 4},  // jin-gle bells,
     {E4, 2}, {G4, 2}, {C4, 3}, {D4, 1}, {E4, 8},  // jin-gle all the way,
-    {F4, 2}, {F4, 2}, {F4, 2}, {F4, 2},            // Oh, what fun it is
-    {F4, 2}, {E4, 2}, {E4, 2},                     // to ride in a
-    {E4, 2}, {E4, 2}, {0, 2}                       // one-horse open sleigh
+    {F4, 2}, {F4, 2}, {F4, 2}, {F4, 2},             // Oh, what fun it is
+    {F4, 2}, {E4, 2}, {E4, 2},                      // to ride in a
+    {E4, 2}, {E4, 2}, {0, 2}                        // one-horse open sleigh
 };
 
 static const SongNote_t song2_data[] = {
@@ -98,7 +98,6 @@ const char* Speaker_GetSongName(SongSelect_t song) {
 }
 
 // ====================== XỬ LÝ NÚT BẤM VÀ LCD ======================
-// Định nghĩa đúng 5 Mode chuẩn theo tài liệu của nhóm
 typedef enum {
     MODE_FREE_PLAY = 0, // Mode 0: Đánh đàn tự do
     MODE_RECORDING,     // Mode 1: Bắt đầu lưu nốt
@@ -107,18 +106,12 @@ typedef enum {
     MODE_SONG_3         // Mode 4: Chờ phát bài 3
 } SystemMode_t;
 
-
-
-// ====================== XỬ LÝ NÚT BẤM THEO ĐÚNG TÀI LIỆU ======================
 static SystemMode_t current_mode = MODE_FREE_PLAY;
-
-// Biến lưu trạng thái phím để chống dội an toàn không bị treo
 static uint32_t last_press_tick = 0;
 
 void UI_Process_Buttons(void) {
     uint32_t current_tick = HAL_GetTick();
     
-    // Chống dội chung 200ms mỗi lần nhấn nút
     if (current_tick - last_press_tick < 200) {
         return; 
     }
@@ -127,7 +120,6 @@ void UI_Process_Buttons(void) {
     if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_5) == GPIO_PIN_RESET) {
         last_press_tick = current_tick;
         
-        // Dừng phát nhạc khi chuyển mode
         if (current_song != SONG_STOPPED) {
             Speaker_SelectSong(SONG_STOPPED);
         }
@@ -137,36 +129,35 @@ void UI_Process_Buttons(void) {
             current_mode = MODE_FREE_PLAY;
         }
         
-        // Hiển thị lên LCD dòng 0
-        lcd_put_cur(0, 0);
-        lcd_send_string("Mode:           "); 
-        lcd_put_cur(0, 6);
+        LCD_Set_Cursor(0, 0);
+        LCD_Send_String("Mode:           "); 
+        LCD_Set_Cursor(0, 6);
         
         switch(current_mode) {
             case MODE_FREE_PLAY: 
-                lcd_send_string("FREE PLAY");
-                lcd_put_cur(1, 0);
-                lcd_send_string("Status: READY   ");
+                LCD_Send_String("FREE PLAY");
+                LCD_Set_Cursor(1, 0);
+                LCD_Send_String("Status: READY   ");
                 break;
             case MODE_RECORDING: 
-                lcd_send_string("RECORDING");
-                lcd_put_cur(1, 0);
-                lcd_send_string("Status: REC WAIT");
+                LCD_Send_String("RECORDING");
+                LCD_Set_Cursor(1, 0);
+                LCD_Send_String("Status: REC WAIT");
                 break;
             case MODE_SONG_1:    
-                lcd_send_string("SONG 1   ");
-                lcd_put_cur(1, 0);
-                lcd_send_string("Jingle Bells    ");
+                LCD_Send_String("SONG 1   ");
+                LCD_Set_Cursor(1, 0);
+                LCD_Send_String("Jingle Bells    ");
                 break;
             case MODE_SONG_2:    
-                lcd_send_string("SONG 2   ");
-                lcd_put_cur(1, 0);
-                lcd_send_string("Happy Birthday  ");
+                LCD_Send_String("SONG 2   ");
+                LCD_Set_Cursor(1, 0);
+                LCD_Send_String("Happy Birthday  ");
                 break;
             case MODE_SONG_3:    
-                lcd_send_string("SONG 3   ");
-                lcd_put_cur(1, 0);
-                lcd_send_string("Twinkle Star    ");
+                LCD_Send_String("SONG 3   ");
+                LCD_Set_Cursor(1, 0);
+                LCD_Send_String("Twinkle Star    ");
                 break;
         }
     }
@@ -177,53 +168,52 @@ void UI_Process_Buttons(void) {
         
         switch(current_mode) {
             case MODE_FREE_PLAY:
-                // Không có action trong Free Play
                 break;
                 
             case MODE_RECORDING:
-                lcd_put_cur(1, 0);
-                lcd_send_string("Status: PLAYBACK");
-                // TODO: Thêm logic playback ghi âm
+                LCD_Set_Cursor(1, 0);
+                LCD_Send_String("Status: PLAYBACK");
                 break;
                 
             case MODE_SONG_1:
                 if (current_song == SONG_1) {
                     Speaker_SelectSong(SONG_STOPPED);
-                    lcd_put_cur(1, 0);
-                    lcd_send_string("Status: STOPPED ");
+                    LCD_Set_Cursor(1, 0);
+                    LCD_Send_String("Status: STOPPED ");
                 } else {
                     Speaker_SelectSong(SONG_1);
-                    lcd_put_cur(1, 0);
-                    lcd_send_string("Status: PLAYING ");
+                    LCD_Set_Cursor(1, 0);
+                    LCD_Send_String("Status: PLAYING ");
                 }
                 break;
                 
             case MODE_SONG_2:
                 if (current_song == SONG_2) {
                     Speaker_SelectSong(SONG_STOPPED);
-                    lcd_put_cur(1, 0);
-                    lcd_send_string("Status: STOPPED ");
+                    LCD_Set_Cursor(1, 0);
+                    LCD_Send_String("Status: STOPPED ");
                 } else {
                     Speaker_SelectSong(SONG_2);
-                    lcd_put_cur(1, 0);
-                    lcd_send_string("Status: PLAYING ");
+                    LCD_Set_Cursor(1, 0);
+                    LCD_Send_String("Status: PLAYING ");
                 }
                 break;
                 
             case MODE_SONG_3:
                 if (current_song == SONG_3) {
                     Speaker_SelectSong(SONG_STOPPED);
-                    lcd_put_cur(1, 0);
-                    lcd_send_string("Status: STOPPED ");
+                    LCD_Set_Cursor(1, 0);
+                    LCD_Send_String("Status: STOPPED ");
                 } else {
                     Speaker_SelectSong(SONG_3);
-                    lcd_put_cur(1, 0);
-                    lcd_send_string("Status: PLAYING ");
+                    LCD_Set_Cursor(1, 0);
+                    LCD_Send_String("Status: PLAYING ");
                 }
                 break;
         }
     }
 }
+
 // ====================== FSM PHÁT NHẠC ======================
 void Speaker_Process_FSM(void) {
     if (current_song == SONG_STOPPED) {
@@ -242,13 +232,10 @@ void Speaker_Process_FSM(void) {
 
             Audio_PlayTone(freq);
             
-            // Hiển thị nốt nhạc đang phát và tempo trên LCD
-            lcd_put_cur(1, 0);
+            LCD_Set_Cursor(1, 0);
             if (freq == 0) {
-                lcd_send_string("Note:REST ");
+                LCD_Send_String("Note:REST       ");
             } else {
-                char note_str[12];
-                // Chuyển tần số thành tên nốt
                 const char* note_name = "???";
                 if (freq == C4) note_name = "C4 ";
                 else if (freq == D4) note_name = "D4 ";
@@ -259,15 +246,14 @@ void Speaker_Process_FSM(void) {
                 else if (freq == B4) note_name = "B4 ";
                 else if (freq == C5) note_name = "C5 ";
                 
-                lcd_send_string("Note:");
-                lcd_send_string((char*)note_name);
+                LCD_Send_String("Note:");
+                LCD_Send_String((char*)note_name);
             }
             
-            // Hiển thị tempo
-            lcd_put_cur(1, 10);
-            char tempo_str[7];
+            LCD_Set_Cursor(1, 10);
+            char tempo_str[10];
             sprintf(tempo_str, "T:%03d", base_tempo);
-            lcd_send_string(tempo_str);
+            LCD_Send_String(tempo_str);
 
             if (now - last_note_tick >= play_duration) {
                 Audio_PlayTone(0); 

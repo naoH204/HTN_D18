@@ -3,8 +3,11 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "Speaker.h"
-#include "i2c-lcd.h"
-/* Private includes ----------------------------------------------------------*/
+#include "lcd-i2c.h"
+#include "keypad.h"
+#include <stdio.h>
+/* USER CODE END Includ
+ Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 /* USER CODE END Includes */
 
@@ -58,6 +61,16 @@ void Audio_PlayTone(uint16_t freq) {
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+void Buzzer_PlayNote(uint16_t freq) {
+    if (freq == 0) {
+        __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, 0); // Tắt băm xung
+    } else {
+        // Tính toán giá trị thanh ghi ARR dựa trên tần số muốn phát
+        __HAL_TIM_SET_AUTORELOAD(&htim1, 1000000 / freq - 1);
+        // Set Duty cycle 50% để loa kêu to và đều nhất
+        __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, (1000000 / freq) / 2); 
+    }
+}
 /* USER CODE END 0 */
 
 /**
@@ -94,37 +107,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
   
-  // Test I2C LCD address
-  HAL_Delay(100); // Đợi LCD ổn định
-  uint8_t lcd_addr = lcd_test_i2c_address();
-  
-  if (lcd_addr != 0) {
-      // Tìm thấy LCD - khởi tạo bình thường
-      lcd_init();
-      HAL_Delay(50);
-      lcd_put_cur(0, 0);
-      lcd_send_string("LCD OK! Addr:");
-      lcd_put_cur(1, 0);
-      if (lcd_addr == 0x4E) {
-          lcd_send_string("0x27 (0x4E)    ");
-      } else {
-          lcd_send_string("0x3F (0x7E)    ");
-      }
-      HAL_Delay(2000); // Hiển thị địa chỉ 2 giây
-      
-      // Hiển thị giao diện chính
-      lcd_clear();
-      lcd_put_cur(0, 0);
-      lcd_send_string("Mode: FREE PLAY ");
-      lcd_put_cur(1, 0);
-      lcd_send_string("Status: READY   ");
-      
-      Speaker_Init(&hadc1);
-  } else {
-      // Không tìm thấy LCD - chỉ khởi tạo speaker
-      // Có thể blink LED để báo lỗi
-      Speaker_Init(&hadc1);
-  }
+ 
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -134,11 +117,100 @@ int main(void)
     UI_Process_Buttons();   // Quét nút bấm đổi bài và Play/Stop
     Speaker_Process_FSM();   // Xử lý phát nhạc
     /* USER CODE END WHILE */
+static uint32_t last_lcd_update = 0;
+    static uint8_t system_mode = 0;      // 0 (Free), 1 (Record)
+    static uint8_t action_state = 0;     // 0: Chờ, 1: Đang ghi, 2: Đang phát lại
+    
+    // Khai báo biến lưu trạng thái cũ để bắt sự kiện "bấm xuống 1 lần"
+    static uint8_t last_pa5 = 1;         // Mặc định Pull-up là 1
+    static uint8_t last_pa6 = 1;         // Mặc định Pull-up là 1
+    
+    char lcd_row1[32] = "                ";
+    char lcd_row2[32] = "                ";
 
+    // --- 1. LẤY MÃ PHÍM ĐÀN TỪ MODULE SV2 (Vẫn dùng hàm của SV2) ---
+    uint8_t key = Keypad_GetConfirmedKey();
+
+    // --- 2. ĐỌC TRỰC TIẾP 2 NÚT ĐIỀU KHIỂN PA5 (Select), PA6 (OK) ---
+    // Vì đang cấu hình Pull-up nên nhả = 1, bấm = 0
+    uint8_t current_pa5 = HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_5);
+    uint8_t current_pa6 = HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_6);
+    
+    // Logic: Nếu lần trước nhả (1), lần này bấm (0) => Bắt đúng xung cạnh xuống
+    if (last_pa5 == 1 && current_pa5 == 0) { 
+        // Bấm PA5 (Select) -> Đổi qua lại giữa Mode 0 và Mode 1
+        system_mode++;
+        if (system_mode > 1) system_mode = 0; 
+        
+        action_state = 0;   // Reset trạng thái thực thi
+        Buzzer_PlayNote(0); // Tắt loa ngay lập tức khi đổi Mode
+    }
+    
+    if (last_pa6 == 1 && current_pa6 == 0) { 
+        // Bấm PA6 (OK) -> Chuyển trạng thái Ghi/Phát ở Mode 1
+        if (system_mode == 1) {
+            action_state++;
+            if (action_state > 2) action_state = 0;
+        }
+    }
+    
+    // Cập nhật lại biến last để dùng cho vòng lặp sau
+    last_pa5 = current_pa5;
+    last_pa6 = current_pa6;
+
+    // --- 3. HIỂN THỊ GIAO DIỆN & PHÁT NHẠC (Sử dụng switch-case) ---
+    switch (system_mode) {
+        case 0: // CHẾ ĐỘ 0: ĐÁNH TỰ DO (Code nốt nhạc cũ của m ở đây)
+            sprintf(lcd_row1, "Mode: FREE PLAY ");
+            
+            if (key != 0) {
+                sprintf(lcd_row2, "Key Pressed: %02X", key); 
+                // Phát nhạc tương ứng với phím
+                if (key == 0x01) Buzzer_PlayNote(524);       // C5
+                else if (key == 0x02) Buzzer_PlayNote(587);  // D5
+                else if (key == 0x04) Buzzer_PlayNote(661);  // E5
+                else if (key == 0x08) Buzzer_PlayNote(700);  // F5
+                else if (key == 0x10) Buzzer_PlayNote(784);  // G5
+                else if (key == 0x20) Buzzer_PlayNote(880);  // A5
+                else if (key == 0x40) Buzzer_PlayNote(988);  // B5
+                else if (key == 0x80) Buzzer_PlayNote(1047); // C6
+            } else {
+                sprintf(lcd_row2, "Ready...        ");
+                Buzzer_PlayNote(0); // Thả tay ra thì tắt loa
+            }
+            break;
+
+        case 1: // CHẾ ĐỘ 1: GHI ÂM & PHÁT LẠI (Dành cho SV4)
+            sprintf(lcd_row1, "Mode: REC/PLAY  ");
+            
+            if (action_state == 0) {
+                sprintf(lcd_row2, "Press OK to REC ");
+                Buzzer_PlayNote(0); // Ngừng loa chờ ấn OK
+            } 
+            else if (action_state == 1) {
+                sprintf(lcd_row2, "Status: RECORDING");
+                // SV4 sẽ nhét code lưu mảng nốt nhạc vào đây
+            } 
+            else if (action_state == 2) {
+                sprintf(lcd_row2, "Status: PLAYBACK ");
+                // SV4 sẽ nhét code đọc mảng phát loa vào đây
+            }
+            break;
+    }
+
+    // --- 4. CẬP NHẬT MÀN HÌNH (Mỗi 200ms) ---
+    if (HAL_GetTick() - last_lcd_update >= 200) {
+        last_lcd_update = HAL_GetTick();
+        
+        LCD_Set_Cursor(0, 0);
+        LCD_Send_String(lcd_row1);
+        LCD_Set_Cursor(1, 0);
+        LCD_Send_String(lcd_row2);
+    }
+	}
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
-}
 
 /**
   * @brief System Clock Configuration

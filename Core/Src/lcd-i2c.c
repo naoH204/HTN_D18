@@ -1,5 +1,6 @@
 #include "lcd-i2c.h"
 
+
 extern I2C_HandleTypeDef hi2c1;
 #define LCD_ADDR (0x27 << 1) // Đổi thành 0x3F<<1 nếu không lên chữ
 
