@@ -3,6 +3,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "Speaker.h"
+#include "i2c-lcd.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 /* USER CODE END Includes */
@@ -30,7 +31,6 @@ TIM_HandleTypeDef htim3;
 UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN PV */
-static SongSelect_t current_selected_song = SONG_STOPPED;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -93,44 +93,50 @@ int main(void)
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
-
-  Speaker_Init(&hadc1);
-
-
+  
+  // Test I2C LCD address
+  HAL_Delay(100); // Đợi LCD ổn định
+  uint8_t lcd_addr = lcd_test_i2c_address();
+  
+  if (lcd_addr != 0) {
+      // Tìm thấy LCD - khởi tạo bình thường
+      lcd_init();
+      HAL_Delay(50);
+      lcd_put_cur(0, 0);
+      lcd_send_string("LCD OK! Addr:");
+      lcd_put_cur(1, 0);
+      if (lcd_addr == 0x4E) {
+          lcd_send_string("0x27 (0x4E)    ");
+      } else {
+          lcd_send_string("0x3F (0x7E)    ");
+      }
+      HAL_Delay(2000); // Hiển thị địa chỉ 2 giây
+      
+      // Hiển thị giao diện chính
+      lcd_clear();
+      lcd_put_cur(0, 0);
+      lcd_send_string("Mode: FREE PLAY ");
+      lcd_put_cur(1, 0);
+      lcd_send_string("Status: READY   ");
+      
+      Speaker_Init(&hadc1);
+  } else {
+      // Không tìm thấy LCD - chỉ khởi tạo speaker
+      // Có thể blink LED để báo lỗi
+      Speaker_Init(&hadc1);
+  }
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  /* USER CODE BEGIN WHILE */
-  uint32_t last_button_tick = 0;
-
   while (1)
   {
-    /* USER CODE BEGIN USER_CODE */
-
-    if (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_10) == GPIO_PIN_RESET) {
-        if (HAL_GetTick() - last_button_tick > 200) {
-            last_button_tick = HAL_GetTick();
-
-            current_selected_song = (SongSelect_t)((current_selected_song + 1) % 4);
-            
-            Speaker_SelectSong(current_selected_song);
-
-        }
-    }
-
-    // --- CH?Y FSM PH�T NH?C T? �?NG TRONG N?N (Non-blocking) ---
-    // H�m n�y s? t? d?ng d?c gi� tr? bi?n tr? ? PA4 (`ADC1_IN4`) d? thay d?i t?c d? 
-    // v� xu?t t?n s? n?t qua h�m `SV1_Audio_PlayTone` ra ch�n `PA8`.
-    Speaker_Process_FSM();
-
+    UI_Process_Buttons();   // Quét nút bấm đổi bài và Play/Stop
+    Speaker_Process_FSM();   // Xử lý phát nhạc
     /* USER CODE END WHILE */
 
-
-
-}   
-
     /* USER CODE BEGIN 3 */
+  }
   /* USER CODE END 3 */
 }
 
@@ -414,6 +420,14 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOD_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
+
+
+  /*Configure GPIO pins : PA5 PA6 */
+  GPIO_InitStruct.Pin = GPIO_PIN_5|GPIO_PIN_6; // 5 chon, 6 ok
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
 
   /*Configure GPIO pins : PB10 PB11 PB12 PB13
                            PB14 PB15 PB8 PB9 */
