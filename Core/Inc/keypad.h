@@ -5,5 +5,5 @@
 
 void Keypad_ScanCallback(void);
 uint8_t Keypad_GetConfirmedKey(void);
-
+uint8_t Keypad_GetControlKey(void);
 #endif
