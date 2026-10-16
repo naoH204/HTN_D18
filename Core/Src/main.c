@@ -2,7 +2,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-
+#include "Speaker.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 /* USER CODE END Includes */
@@ -30,6 +30,7 @@ TIM_HandleTypeDef htim3;
 UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN PV */
+static SongSelect_t current_selected_song = SONG_STOPPED;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -41,6 +42,18 @@ static void MX_TIM1_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_USART1_UART_Init(void);
 /* USER CODE BEGIN PFP */
+void Audio_PlayTone(uint16_t freq) {
+    if (freq == 0) {
+        __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, 0);
+    } else {
+        uint32_t prescaler = htim1.Init.Prescaler;
+        uint32_t timer_clock = 72000000 / (prescaler + 1);
+        uint32_t arr = (timer_clock / freq) - 1;
+        
+        __HAL_TIM_SET_AUTORELOAD(&htim1, arr);
+        __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, arr / 2); // Duty cycle 50%
+    }
+}
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -79,11 +92,43 @@ int main(void)
   MX_TIM3_Init();
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
+  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+
+  Speaker_Init(&hadc1);
+
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  /* USER CODE BEGIN WHILE */
+  uint32_t last_button_tick = 0;
+
+  while (1)
+  {
+    /* USER CODE BEGIN USER_CODE */
+
+    if (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_10) == GPIO_PIN_RESET) {
+        if (HAL_GetTick() - last_button_tick > 200) {
+            last_button_tick = HAL_GetTick();
+
+            current_selected_song = (SongSelect_t)((current_selected_song + 1) % 4);
+            
+            Speaker_SelectSong(current_selected_song);
+
+        }
+    }
+
+    // --- CH?Y FSM PHÁT NH?C T? Ð?NG TRONG N?N (Non-blocking) ---
+    // Hàm này s? t? d?ng d?c giá tr? bi?n tr? ? PA4 (`ADC1_IN4`) d? thay d?i t?c d? 
+    // và xu?t t?n s? n?t qua hàm `SV1_Audio_PlayTone` ra chân `PA8`.
+    Speaker_Process_FSM();
+
     /* USER CODE END WHILE */
+
+
+
+}   
 
     /* USER CODE BEGIN 3 */
   /* USER CODE END 3 */

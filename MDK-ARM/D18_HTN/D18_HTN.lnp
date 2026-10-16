@@ -3,6 +3,7 @@
 "d18_htn\main.o"
 "d18_htn\stm32f1xx_it.o"
 "d18_htn\stm32f1xx_hal_msp.o"
+"d18_htn\speaker.o"
 "d18_htn\stm32f1xx_hal_gpio_ex.o"
 "d18_htn\stm32f1xx_hal_adc.o"
 "d18_htn\stm32f1xx_hal_adc_ex.o"
@@ -22,6 +23,6 @@
 "d18_htn\stm32f1xx_hal_uart.o"
 "d18_htn\system_stm32f1xx.o"
 --strict --scatter "D18_HTN\D18_HTN.sct"
---summary_stderr --info summarysizes --map --xref --callgraph --symbols
+--summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers
 --list "D18_HTN.map" -o D18_HTN\D18_HTN.axf
