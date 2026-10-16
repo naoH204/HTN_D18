@@ -3,6 +3,7 @@
 "d18_htn\main.o"
 "d18_htn\stm32f1xx_it.o"
 "d18_htn\stm32f1xx_hal_msp.o"
+"d18_htn\keypad.o"
 "d18_htn\stm32f1xx_hal_gpio_ex.o"
 "d18_htn\stm32f1xx_hal_adc.o"
 "d18_htn\stm32f1xx_hal_adc_ex.o"

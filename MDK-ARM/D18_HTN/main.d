@@ -31,5 +31,4 @@ d18_htn\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pwr.h
 d18_htn\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim.h
 d18_htn\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim_ex.h
 d18_htn\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h
-d18_htn\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
-d18_htn\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+d18_htn\main.o: ../Core/Inc/keypad.h

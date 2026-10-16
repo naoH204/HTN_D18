@@ -5,6 +5,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "keypad.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -41,10 +42,21 @@ static void MX_TIM1_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_USART1_UART_Init(void);
 /* USER CODE BEGIN PFP */
+void Buzzer_PlayNote(uint16_t freq);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+void Buzzer_PlayNote(uint16_t freq) {
+    if (freq == 0) {
+        __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, 0); // Tắt băm xung
+    } else {
+        // Tính toán giá trị thanh ghi ARR dựa trên tần số muốn phát
+        __HAL_TIM_SET_AUTORELOAD(&htim1, 1000000 / freq - 1);
+        // Set Duty cycle 50% để loa kêu to và đều nhất
+        __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, (1000000 / freq) / 2); 
+    }
+}
 /* USER CODE END 0 */
 
 /**
@@ -79,13 +91,29 @@ int main(void)
   MX_TIM3_Init();
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
+HAL_TIM_Base_Start_IT(&htim3);
+HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+	while (1)
+  {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+uint8_t key = Keypad_GetConfirmedKey();
+if (key == 0x01) Buzzer_PlayNote(524);       // Nốt Đô (C5)
+else if (key == 0x02) Buzzer_PlayNote(587);  // Nốt Rê (D5)
+else if (key == 0x04) Buzzer_PlayNote(661);  // Nốt Mi (E5)
+else if (key == 0x08) Buzzer_PlayNote(700);  // Nốt Fa (F5)
+else if (key == 0x10) Buzzer_PlayNote(784);  // Nốt Sol (G5)
+else if (key == 0x20) Buzzer_PlayNote(880);  // Nốt La (A5)
+else if (key == 0x40) Buzzer_PlayNote(988);  // Nốt Si (B5)
+else if (key == 0x80) Buzzer_PlayNote(1047); // Nốt Đô cao (C6)
+else Buzzer_PlayNote(0);                         
+		
+	}
   /* USER CODE END 3 */
 }
 
@@ -255,7 +283,7 @@ static void MX_TIM1_Init(void)
     Error_Handler();
   }
   sConfigOC.OCMode = TIM_OCMODE_PWM1;
-  sConfigOC.Pulse = 250;
+  sConfigOC.Pulse = 500;
   sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
   sConfigOC.OCNPolarity = TIM_OCNPOLARITY_HIGH;
   sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
@@ -383,6 +411,13 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+    if (htim->Instance == TIM3)
+    {
+        Keypad_ScanCallback(); 
+    }
+}
 /* USER CODE END 4 */
 
 /**
