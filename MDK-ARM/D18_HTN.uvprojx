@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 <Project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="project_projx.xsd">
 
@@ -5,6 +6,12 @@
 
   <Header>### uVision Project, (C) Keil Software</Header>
 
+=======
+<?xml version="1.0" encoding="UTF-8"?>
+<Project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" noNamespaceSchemaLocation="project_projx.xsd">
+  <SchemaVersion>2.1</SchemaVersion>
+  <Header>### uVision Project, (C) Keil Software</Header>
+>>>>>>> e63f49310e2daf683b2c75f682b8f2041e890580
   <Targets>
     <Target>
       <TargetName>D18_HTN</TargetName>
@@ -18,6 +25,7 @@
           <PackID>Keil.STM32F1xx_DFP.2.1.0</PackID>
           <PackURL>http://www.keil.com/pack/</PackURL>
           <Cpu>IRAM(0x20000000-0x20004FFF) IROM(0x8000000-0x800FFFF) CLOCK(8000000) CPUTYPE("Cortex-M3") TZ</Cpu>
+<<<<<<< HEAD
           <FlashUtilSpec></FlashUtilSpec>
           <StartupFile></StartupFile>
           <FlashDriverDll></FlashDriverDll>
@@ -40,6 +48,30 @@
           <LibPath></LibPath>
           <RegisterFilePath></RegisterFilePath>
           <DBRegisterFilePath></DBRegisterFilePath>
+=======
+          <FlashUtilSpec />
+          <StartupFile />
+          <FlashDriverDll />
+          <DeviceId>0</DeviceId>
+          <RegisterFile />
+          <MemoryEnv />
+          <Cmp />
+          <Asm />
+          <Linker />
+          <OHString />
+          <InfinionOptionDll />
+          <SLE66CMisc />
+          <SLE66AMisc />
+          <SLE66LinkerMisc />
+          <SFDFile>$$Device:STM32F103C8$SVD\STM32F103xx.svd</SFDFile>
+          <bCustSvd>0</bCustSvd>
+          <UseEnv>0</UseEnv>
+          <BinPath />
+          <IncludePath />
+          <LibPath />
+          <RegisterFilePath />
+          <DBRegisterFilePath />
+>>>>>>> e63f49310e2daf683b2c75f682b8f2041e890580
           <TargetStatus>
             <Error>0</Error>
             <ExitCodeStop>0</ExitCodeStop>
@@ -54,15 +86,24 @@
           <CreateHexFile>1</CreateHexFile>
           <DebugInformation>1</DebugInformation>
           <BrowseInformation>1</BrowseInformation>
+<<<<<<< HEAD
           <ListingPath></ListingPath>
+=======
+          <ListingPath />
+>>>>>>> e63f49310e2daf683b2c75f682b8f2041e890580
           <HexFormatSelection>1</HexFormatSelection>
           <Merge32K>0</Merge32K>
           <CreateBatchFile>0</CreateBatchFile>
           <BeforeCompile>
             <RunUserProg1>0</RunUserProg1>
             <RunUserProg2>0</RunUserProg2>
+<<<<<<< HEAD
             <UserProg1Name></UserProg1Name>
             <UserProg2Name></UserProg2Name>
+=======
+            <UserProg1Name />
+            <UserProg2Name />
+>>>>>>> e63f49310e2daf683b2c75f682b8f2041e890580
             <UserProg1Dos16Mode>0</UserProg1Dos16Mode>
             <UserProg2Dos16Mode>0</UserProg2Dos16Mode>
             <nStopU1X>0</nStopU1X>
@@ -71,8 +112,13 @@
           <BeforeMake>
             <RunUserProg1>0</RunUserProg1>
             <RunUserProg2>0</RunUserProg2>
+<<<<<<< HEAD
             <UserProg1Name></UserProg1Name>
             <UserProg2Name></UserProg2Name>
+=======
+            <UserProg1Name />
+            <UserProg2Name />
+>>>>>>> e63f49310e2daf683b2c75f682b8f2041e890580
             <UserProg1Dos16Mode>0</UserProg1Dos16Mode>
             <UserProg2Dos16Mode>0</UserProg2Dos16Mode>
             <nStopB1X>0</nStopB1X>
@@ -81,15 +127,24 @@
           <AfterMake>
             <RunUserProg1>0</RunUserProg1>
             <RunUserProg2>1</RunUserProg2>
+<<<<<<< HEAD
             <UserProg1Name></UserProg1Name>
             <UserProg2Name></UserProg2Name>
+=======
+            <UserProg1Name />
+            <UserProg2Name />
+>>>>>>> e63f49310e2daf683b2c75f682b8f2041e890580
             <UserProg1Dos16Mode>0</UserProg1Dos16Mode>
             <UserProg2Dos16Mode>0</UserProg2Dos16Mode>
             <nStopA1X>0</nStopA1X>
             <nStopA2X>0</nStopA2X>
           </AfterMake>
           <SelectedForBatchBuild>1</SelectedForBatchBuild>
+<<<<<<< HEAD
           <SVCSIdString></SVCSIdString>
+=======
+          <SVCSIdString />
+>>>>>>> e63f49310e2daf683b2c75f682b8f2041e890580
         </TargetCommonOption>
         <CommonProperty>
           <UseCPPCompiler>0</UseCPPCompiler>
@@ -103,8 +158,13 @@
           <AssembleAssemblyFile>0</AssembleAssemblyFile>
           <PublicsOnly>0</PublicsOnly>
           <StopOnExitCode>3</StopOnExitCode>
+<<<<<<< HEAD
           <CustomArgument></CustomArgument>
           <IncludeLibraryModules></IncludeLibraryModules>
+=======
+          <CustomArgument />
+          <IncludeLibraryModules />
+>>>>>>> e63f49310e2daf683b2c75f682b8f2041e890580
           <ComprImg>0</ComprImg>
         </CommonProperty>
         <DllOption>
@@ -113,7 +173,11 @@
           <SimDlgDll>DCM.DLL</SimDlgDll>
           <SimDlgDllArguments>-pCM3</SimDlgDllArguments>
           <TargetDllName>SARMCM3.DLL</TargetDllName>
+<<<<<<< HEAD
           <TargetDllArguments></TargetDllArguments>
+=======
+          <TargetDllArguments />
+>>>>>>> e63f49310e2daf683b2c75f682b8f2041e890580
           <TargetDlgDll>TCM.DLL</TargetDlgDll>
           <TargetDlgDllArguments>-pCM3</TargetDlgDllArguments>
         </DllOption>
@@ -137,11 +201,19 @@
           </Flash1>
           <bUseTDR>1</bUseTDR>
           <Flash2>BIN\UL2V8M.DLL</Flash2>
+<<<<<<< HEAD
           <Flash3></Flash3>
           <Flash4></Flash4>
           <pFcarmOut></pFcarmOut>
           <pFcarmGrp></pFcarmGrp>
           <pFcArmRoot></pFcArmRoot>
+=======
+          <Flash3 />
+          <Flash4 />
+          <pFcarmOut />
+          <pFcarmGrp />
+          <pFcArmRoot />
+>>>>>>> e63f49310e2daf683b2c75f682b8f2041e890580
           <FcArmLst>0</FcArmLst>
         </Utilities>
         <TargetArmAds>
@@ -174,7 +246,11 @@
             <RvctClst>0</RvctClst>
             <GenPPlst>0</GenPPlst>
             <AdsCpuType>"Cortex-M3"</AdsCpuType>
+<<<<<<< HEAD
             <RvctDeviceName></RvctDeviceName>
+=======
+            <RvctDeviceName />
+>>>>>>> e63f49310e2daf683b2c75f682b8f2041e890580
             <mOS>0</mOS>
             <uocRom>0</uocRom>
             <uocRam>0</uocRam>
@@ -306,7 +382,11 @@
                 <Size>0x0</Size>
               </OCR_RVCT10>
             </OnChipMemories>
+<<<<<<< HEAD
             <RvctStartVector></RvctStartVector>
+=======
+            <RvctStartVector />
+>>>>>>> e63f49310e2daf683b2c75f682b8f2041e890580
           </ArmAdsMisc>
           <Cads>
             <interw>1</interw>
@@ -332,9 +412,15 @@
             <v6WtE>0</v6WtE>
             <v6Rtti>0</v6Rtti>
             <VariousControls>
+<<<<<<< HEAD
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F103xB</Define>
               <Undefine></Undefine>
+=======
+              <MiscControls />
+              <Define>USE_HAL_DRIVER,STM32F103xB</Define>
+              <Undefine />
+>>>>>>> e63f49310e2daf683b2c75f682b8f2041e890580
               <IncludePath>../Core/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F1xx/Include;../Drivers/CMSIS/Include</IncludePath>
             </VariousControls>
           </Cads>
@@ -350,10 +436,17 @@
             <useXO>0</useXO>
             <uClangAs>0</uClangAs>
             <VariousControls>
+<<<<<<< HEAD
               <MiscControls></MiscControls>
               <Define></Define>
               <Undefine></Undefine>
               <IncludePath></IncludePath>
+=======
+              <MiscControls />
+              <Define />
+              <Undefine />
+              <IncludePath />
+>>>>>>> e63f49310e2daf683b2c75f682b8f2041e890580
             </VariousControls>
           </Aads>
           <LDads>
@@ -363,6 +456,7 @@
             <noStLib>0</noStLib>
             <RepFail>1</RepFail>
             <useFile>0</useFile>
+<<<<<<< HEAD
             <TextAddressRange></TextAddressRange>
             <DataAddressRange></DataAddressRange>
             <pXoBase></pXoBase>
@@ -372,6 +466,17 @@
             <Misc></Misc>
             <LinkerInputFile></LinkerInputFile>
             <DisabledWarnings></DisabledWarnings>
+=======
+            <TextAddressRange />
+            <DataAddressRange />
+            <pXoBase />
+            <ScatterFile />
+            <IncludeLibs />
+            <IncludeLibsPath />
+            <Misc />
+            <LinkerInputFile />
+            <DisabledWarnings />
+>>>>>>> e63f49310e2daf683b2c75f682b8f2041e890580
           </LDads>
         </TargetArmAds>
       </TargetOption>
@@ -404,11 +509,14 @@
               <FileType>1</FileType>
               <FilePath>../Core/Src/stm32f1xx_hal_msp.c</FilePath>
             </File>
+<<<<<<< HEAD
             <File>
               <FileName>buzzer.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Core\Src\buzzer.c</FilePath>
             </File>
+=======
+>>>>>>> e63f49310e2daf683b2c75f682b8f2041e890580
           </Files>
         </Group>
         <Group>
@@ -517,6 +625,7 @@
       </Groups>
     </Target>
   </Targets>
+<<<<<<< HEAD
 
   <RTE>
     <apis/>
@@ -532,3 +641,19 @@
   </RTE>
 
 </Project>
+=======
+  <RTE>
+    <apis />
+    <components>
+      <component Cclass="CMSIS" Cgroup="CORE" Cvendor="ARM" Cversion="4.3.0" condition="CMSIS Core">
+        <package name="CMSIS" schemaVersion="1.3" url="http://www.keil.com/pack/" vendor="ARM" version="4.5.0" />
+        <targetInfos>
+          <targetInfo name="D18_HTN" />
+        </targetInfos>
+      </component>
+    </components>
+    <files />
+  </RTE>
+</Project>
+
+>>>>>>> e63f49310e2daf683b2c75f682b8f2041e890580
