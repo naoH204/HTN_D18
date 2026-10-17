@@ -42,5 +42,5 @@ void Speaker_SelectSong(SongSelect_t song);
 uint16_t Speaker_ReadTempo(void);
 void Speaker_Process_FSM(void);
 const char* Speaker_GetSongName(SongSelect_t song);
-void UI_Process_Buttons(void);
+
 #endif 

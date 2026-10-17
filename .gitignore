@@ -1,34 +1,26 @@
-==========================================
 
-CÁC FILE RÁC CỦA HỆ ĐIỀU HÀNH
-
-==========================================
-
+# ==============================
+# Operating system files
+# ==============================
 .DS_Store
 Thumbs.db
 desktop.ini
 
-==========================================
-
-CÁC FILE RÁC CỦA STM32CubeMX
-
-==========================================
-
+# ==============================
+# STM32CubeMX backup files
+# ==============================
 *.bak
 *.ioc.bak
 
-==========================================
-
-CÁC FILE RÁC CỦA KEILC (MDK-ARM)
-
-==========================================
-
-.uvguix.
+# ==============================
+# Keil MDK-ARM
+# ==============================
+*.uvguix.*
 *.uvoptx
-*/RTE/
-*/DebugConfig/
-*/Objects/
-*/Listings/
+**/RTE/
+**/DebugConfig/
+**/Objects/
+**/Listings/
 *.crf
 *.d
 *.o
@@ -41,23 +33,17 @@ CÁC FILE RÁC CỦA KEILC (MDK-ARM)
 *.lnp
 *.build_log.htm
 
-==========================================
-
-CÁC FILE RÁC CỦA STM32CubeIDE / ECLIPSE
-
-==========================================
-
+# ==============================
+# STM32CubeIDE / Eclipse
+# ==============================
 Debug/
 Release/
 .metadata/
 *.launch
 
-==========================================
-
-CÁC FILE BIÊN DỊCH TRUNG GIAN (C/C++)
-
-==========================================
-
+# ==============================
+# C/C++ intermediate and build files
+# ==============================
 *.obj
 *.elf
 *.ilk
@@ -74,3 +60,5 @@ CÁC FILE BIÊN DỊCH TRUNG GIAN (C/C++)
 *.out
 *.bin
 *.dat
+*.iex
+*.lst
