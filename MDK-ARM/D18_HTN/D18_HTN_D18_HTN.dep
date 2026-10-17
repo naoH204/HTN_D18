@@ -65,7 +65,7 @@ I (../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pwr.h)(0x69FF6647)
 I (../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim.h)(0x69FF6647)
 I (../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim_ex.h)(0x69FF6647)
 I (../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h)(0x69FF6647)
-F (../Core/Src/main.c)(0x6AD203B9)(--c99 -c --cpu Cortex-M3 -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32F1xx_HAL_Driver/Inc -I ../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I ../Drivers/CMSIS/Include-IC:\Users\Admin\Documents\KMA\Project_cube\D18_HTN\MDK-ARM\RTE-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\4.5.0\CMSIS\Include-IC:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\2.1.0\Device\Include-D__UVISION_VERSION="521" -D_RTE_ -DSTM32F10X_MD -DUSE_HAL_DRIVER -DSTM32F103xB-o d18_htn\main.o --omf_browse d18_htn\main.crf --depend d18_htn\main.d)
+F (../Core/Src/main.c)(0x6AD2F51C)(--c99 -c --cpu Cortex-M3 -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32F1xx_HAL_Driver/Inc -I ../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I ../Drivers/CMSIS/Include-IC:\Users\Admin\Documents\KMA\Project_cube\D18_HTN\MDK-ARM\RTE-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\4.5.0\CMSIS\Include-IC:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\2.1.0\Device\Include-D__UVISION_VERSION="521" -D_RTE_ -DSTM32F10X_MD -DUSE_HAL_DRIVER -DSTM32F103xB-o d18_htn\main.o --omf_browse d18_htn\main.crf --depend d18_htn\main.d)
 I (../Core/Inc/main.h)(0x6ACCFD4A)
 I (../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h)(0x69FF6647)
 I (../Core/Inc/stm32f1xx_hal_conf.h)(0x6ACCFD4A)
@@ -100,6 +100,7 @@ I (../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h)(0x69FF6647)
 I (../Core/Inc/keypad.h)(0x6AD203E7)
 I (../Core/Inc/lcd.h)(0x6AD203E8)
 I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x574E4C36)
+I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x574E4C36)
 F (../Core/Src/stm32f1xx_it.c)(0x6ACCFD4A)(--c99 -c --cpu Cortex-M3 -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32F1xx_HAL_Driver/Inc -I ../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I ../Drivers/CMSIS/Include-IC:\Users\Admin\Documents\KMA\Project_cube\D18_HTN\MDK-ARM\RTE-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\4.5.0\CMSIS\Include-IC:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\2.1.0\Device\Include-D__UVISION_VERSION="521" -D_RTE_ -DSTM32F10X_MD -DUSE_HAL_DRIVER -DSTM32F103xB-o d18_htn\stm32f1xx_it.o --omf_browse d18_htn\stm32f1xx_it.crf --depend d18_htn\stm32f1xx_it.d)
 I (../Core/Inc/main.h)(0x6ACCFD4A)
 I (../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h)(0x69FF6647)

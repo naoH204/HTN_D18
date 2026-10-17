@@ -8,6 +8,7 @@
 #include "keypad.h"
 #include "lcd.h"
 #include <stdio.h>
+#include <string.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -53,11 +54,22 @@ void Buzzer_PlayNote(uint16_t freq) {
     if (freq == 0) {
         __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, 0); // Tắt băm xung
     } else {
-        // Tính toán giá trị thanh ghi ARR dựa trên tần số muốn phát
         __HAL_TIM_SET_AUTORELOAD(&htim1, 1000000 / freq - 1);
-        // Set Duty cycle 50% để loa kêu to và đều nhất
         __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, (1000000 / freq) / 2); 
     }
+}
+
+// Hàm dùng chung: Truyền mã phím vào -> Loa tự kêu + Lấy được tên nốt
+void Play_Key_Note(uint8_t key, char* note_str) {
+    if (key == 0x01)      { Buzzer_PlayNote(524);  if(note_str) strcpy(note_str, "C5 "); }
+    else if (key == 0x02) { Buzzer_PlayNote(587);  if(note_str) strcpy(note_str, "D5 "); }
+    else if (key == 0x04) { Buzzer_PlayNote(661);  if(note_str) strcpy(note_str, "E5 "); }
+    else if (key == 0x08) { Buzzer_PlayNote(700);  if(note_str) strcpy(note_str, "F5 "); }
+    else if (key == 0x10) { Buzzer_PlayNote(784);  if(note_str) strcpy(note_str, "G5 "); }
+    else if (key == 0x20) { Buzzer_PlayNote(880);  if(note_str) strcpy(note_str, "A5 "); }
+    else if (key == 0x40) { Buzzer_PlayNote(988);  if(note_str) strcpy(note_str, "B5 "); }
+    else if (key == 0x80) { Buzzer_PlayNote(1047); if(note_str) strcpy(note_str, "C6 "); }
+    else                  { Buzzer_PlayNote(0);    if(note_str) strcpy(note_str, "---"); }
 }
 /* USER CODE END 0 */
 
@@ -109,84 +121,111 @@ LCD_Init();
     static uint8_t system_mode = 0;      // 0 (Free), 1 (Record)
     static uint8_t action_state = 0;     // 0: Chờ, 1: Đang ghi, 2: Đang phát lại
     
-    // Khai báo biến lưu trạng thái cũ để bắt sự kiện "bấm xuống 1 lần"
-    static uint8_t last_pa5 = 1;         // Mặc định Pull-up là 1
-    static uint8_t last_pa6 = 1;         // Mặc định Pull-up là 1
+    static uint8_t last_pa5 = 1;         
+    static uint8_t last_pa6 = 1;         
+    
+    // --- KHAI BÁO CÁC BIẾN CHO TÍNH NĂNG GHI/PHÁT ---
+    static uint8_t rec_keys[50];         // Mảng lưu trữ tối đa 50 nốt nhạc
+    static uint8_t rec_count = 0;        // Số nốt đã được ghi
+    static uint8_t last_rec_key = 0;     // Chống dội khi ghi âm (nhấn giữ chỉ tính 1 nốt)
+    static uint32_t play_last_tick = 0;  // Bộ đếm thời gian khi phát tự động
+    static uint8_t play_idx = 0;         // Vị trí nốt đang phát lại
     
     char lcd_row1[17] = "                ";
     char lcd_row2[17] = "                ";
+    char current_note_str[4] = "---";
 
-    // --- 1. LẤY MÃ PHÍM ĐÀN TỪ MODULE SV2 (Vẫn dùng hàm của SV2) ---
+    // --- 1. LẤY MÃ PHÍM ---
     uint8_t key = Keypad_GetConfirmedKey();
-
-    // --- 2. ĐỌC TRỰC TIẾP 2 NÚT ĐIỀU KHIỂN PA5 (Select), PA6 (OK) ---
-    // Vì đang cấu hình Pull-up nên nhả = 1, bấm = 0
     uint8_t current_pa5 = HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_5);
     uint8_t current_pa6 = HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_6);
     
-    // Logic: Nếu lần trước nhả (1), lần này bấm (0) => Bắt đúng xung cạnh xuống
+    // --- 2. LOGIC NÚT ĐIỀU KHIỂN (Xung cạnh xuống) ---
     if (last_pa5 == 1 && current_pa5 == 0) { 
-        // Bấm PA5 (Select) -> Đổi qua lại giữa Mode 0 và Mode 1
         system_mode++;
         if (system_mode > 1) system_mode = 0; 
         
-        action_state = 0;   // Reset trạng thái thực thi
-        Buzzer_PlayNote(0); // Tắt loa ngay lập tức khi đổi Mode
+        action_state = 0;   
+        Buzzer_PlayNote(0); 
     }
     
     if (last_pa6 == 1 && current_pa6 == 0) { 
-        // Bấm PA6 (OK) -> Chuyển trạng thái Ghi/Phát ở Mode 1
         if (system_mode == 1) {
             action_state++;
             if (action_state > 2) action_state = 0;
+            
+            // Nếu bắt đầu chuyển sang chế độ "Phát Lại", reset bộ đếm nốt
+            if (action_state == 2) {
+                play_idx = 0;
+                play_last_tick = HAL_GetTick();
+            }
         }
     }
     
-    // Cập nhật lại biến last để dùng cho vòng lặp sau
     last_pa5 = current_pa5;
     last_pa6 = current_pa6;
 
-    // --- 3. HIỂN THỊ GIAO DIỆN & PHÁT NHẠC (Sử dụng switch-case) ---
+    // --- 3. HIỂN THỊ GIAO DIỆN & XỬ LÝ NHẠC ---
     switch (system_mode) {
-        case 0: // CHẾ ĐỘ 0: ĐÁNH TỰ DO (Code nốt nhạc cũ của m ở đây)
+        case 0: // CHẾ ĐỘ 0: ĐÁNH TỰ DO 
             sprintf(lcd_row1, "Mode: FREE PLAY ");
             
+            Play_Key_Note(key, current_note_str); // Phát loa và lưu chữ C5, D5
+            
             if (key != 0) {
-                sprintf(lcd_row2, "Key Pressed: %02X", key); 
-                // Phát nhạc tương ứng với phím
-                if (key == 0x01) Buzzer_PlayNote(524);       // C5
-                else if (key == 0x02) Buzzer_PlayNote(587);  // D5
-                else if (key == 0x04) Buzzer_PlayNote(661);  // E5
-                else if (key == 0x08) Buzzer_PlayNote(700);  // F5
-                else if (key == 0x10) Buzzer_PlayNote(784);  // G5
-                else if (key == 0x20) Buzzer_PlayNote(880);  // A5
-                else if (key == 0x40) Buzzer_PlayNote(988);  // B5
-                else if (key == 0x80) Buzzer_PlayNote(1047); // C6
+                sprintf(lcd_row2, "Note: %-10s", current_note_str); 
             } else {
                 sprintf(lcd_row2, "Ready...        ");
-                Buzzer_PlayNote(0); // Thả tay ra thì tắt loa
             }
             break;
 
-        case 1: // CHẾ ĐỘ 1: GHI ÂM & PHÁT LẠI (Dành cho SV4)
+        case 1: // CHẾ ĐỘ 1: GHI ÂM & PHÁT LẠI 
             sprintf(lcd_row1, "Mode: REC/PLAY  ");
             
-            if (action_state == 0) {
+            if (action_state == 0) { // Chờ nhấn OK để ghi
                 sprintf(lcd_row2, "Press OK to REC ");
-                Buzzer_PlayNote(0); // Ngừng loa chờ ấn OK
+                Buzzer_PlayNote(0); 
+                rec_count = 0; // Xóa trắng mảng, chuẩn bị record bản mới
             } 
-            else if (action_state == 1) {
-                sprintf(lcd_row2, "Status: RECORDING");
-                // SV4 sẽ nhét code lưu mảng nốt nhạc vào đây
+            else if (action_state == 1) { // ĐANG GHI ÂM 
+                sprintf(lcd_row2, "REC: %02d notes  ", rec_count);
+                Play_Key_Note(key, NULL); 
+                
+                // Thuật toán: Chỉ lưu vào mảng ở khoảnh khắc "vừa ấn phím xuống"
+                if (key != 0 && key != last_rec_key && rec_count < 50) {
+                    rec_keys[rec_count] = key;
+                    rec_count++;
+                }
+                last_rec_key = key;
             } 
-            else if (action_state == 2) {
-                sprintf(lcd_row2, "Status: PLAYBACK ");
-                // SV4 sẽ nhét code đọc mảng phát loa vào đây
+            else if (action_state == 2) { // ĐANG PHÁT LẠI (Tự động)
+                if (rec_count == 0) {
+                    sprintf(lcd_row2, "Empty Record!   ");
+                    Buzzer_PlayNote(0);
+                } else {
+                    sprintf(lcd_row2, "PLAYING: %02d/%02d", play_idx, rec_count);
+                    
+                    // Thuật toán nhịp Non-blocking (Mỗi nốt phát trong 300ms)
+                    if (HAL_GetTick() - play_last_tick >= 300) {
+                        play_last_tick = HAL_GetTick();
+                        
+                        if (play_idx < rec_count) {
+                            Play_Key_Note(rec_keys[play_idx], NULL); // Chơi nốt kế tiếp
+                            play_idx++;
+                        } else {
+                            Buzzer_PlayNote(0); // Chơi xong toàn bộ mảng thì tắt loa
+                        }
+                    } 
+                    // Nhả phím ảo: Tạo khoảng nghỉ 50ms giữa các nốt
+                    else if (HAL_GetTick() - play_last_tick >= 250) {
+                        Buzzer_PlayNote(0);
+                    }
+                }
             }
             break;
     }
 
-    // --- 4. CẬP NHẬT MÀN HÌNH (Mỗi 200ms) ---
+    // --- 4. CẬP NHẬT MÀN HÌNH CHỐNG NHIỄU (200ms) ---
     if (HAL_GetTick() - last_lcd_update >= 200) {
         last_lcd_update = HAL_GetTick();
         

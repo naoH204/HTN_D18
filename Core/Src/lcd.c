@@ -1,7 +1,7 @@
 #include "lcd.h"
 
 extern I2C_HandleTypeDef hi2c1;
-#define LCD_ADDR (0x27 << 1) // Đổi thành 0x3F<<1 nếu không lên chữ
+#define LCD_ADDR (0x27 << 1)
 
 void LCD_Send_Cmd(uint8_t cmd) {
     uint8_t data_u = (cmd & 0xf0), data_l = ((cmd << 4) & 0xf0);
